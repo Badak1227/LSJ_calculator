@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 typedef struct queueNode {
-	int data;
+	char data;
 	struct queueNode* next;
 }qNode;
 
@@ -13,20 +13,24 @@ typedef struct queue {
 }queue;
 
 queue newQueue() {
-	queue tmp;
-	tmp.front = NULL;
-	tmp.rear = NULL;
-	
-	return tmp;
+	queue* tmp = (queue*)malloc(sizeof(queue));
+	tmp->front = NULL;
+	tmp->rear = NULL;
+
+	queue res = *tmp;
+	free(tmp);
+	return res;
 }
 
 qNode* get_qNode() {
 	qNode* tmp = (qNode*)malloc(sizeof(qNode));
 	tmp->data = 0;
 	tmp->next = NULL;
+
+	return tmp;
 }
 
-void enqueue(queue* head, int data) {
+void enQueue(char data, queue* head) {
 	qNode* tmp = get_qNode();
 	tmp->data = data;
 	
@@ -41,18 +45,30 @@ void enqueue(queue* head, int data) {
 	head->rear = tmp;
 }
 
-void dequeue(queue* head) {
+char deQueue(queue* head) {
 	qNode* tmp = head->front;
+
+	char res = tmp->data;
 
 	if (head->front == head->rear) head->rear = NULL;
 
 	head->front = head->front->next;
 
 	free(tmp);
+
+	return res;
+}
+
+char peek(queue* head) {
+	return head->front->data;
+}
+
+int isEmptyQueue(queue* head) {
+	return head->front == NULL ? 1 : 0;
 }
 
 void freeQueue(queue* head) {
-	while (head->front != NULL) {
-		dequeue(head);
+	while (head->rear != NULL) {
+		deQueue(head);
 	}
 }

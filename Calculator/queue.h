@@ -2,7 +2,7 @@
 #define __QUEUE_H__
 
 typedef struct queueNode {
-	int data;
+	char data;
 	struct queueNode* next;
 }qNode;
 
@@ -15,9 +15,13 @@ queue newQueue();
 
 qNode* get_qNode();
 
-void enqueue(queue* head, int data);
+void enQueue(char data, queue* head);
 
-void dequeue(queue* head);
+char deQueue(queue* head);
+
+char peek(queue* head);
+
+int isEmptyQueue(queue* head);
 
 void freeQueue(queue* head);
 

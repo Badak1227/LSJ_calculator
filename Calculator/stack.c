@@ -2,38 +2,54 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct stack {
+typedef struct stackNode {
 	int data;
-	struct stack* next;
+	struct stackNode* next;
+}sNode;
+
+typedef struct stack {
+	sNode* end;
 }stack;
 
-stack* newStack() {
+stack newStack() {
 	stack* tmp = (stack*)malloc(sizeof(stack));
+	tmp->end = NULL;
+
+	stack res = *tmp;
+	free(tmp);
+	return res;
+}
+
+sNode* get_sNode() {
+	sNode* tmp = (sNode*)malloc(sizeof(sNode));
 	tmp->data = 0;
 	tmp->next = NULL;
 	return tmp;
 }
 
-void push(stack* head, int data) {
-	stack* tmp = newStack();
+void push(int data, stack* head) {
+	sNode* tmp = get_sNode();
 	tmp->data = data;
-	tmp->next = head;
-	head = tmp;
+	tmp->next = head->end;
+	head->end = tmp;
 }
 
 void pop(stack* head) {
-	stack* tmp = head;
-	head = head->next;
+	sNode* tmp = head->end;
+	head->end = head->end->next;
 	free(tmp);
 }
 
 int top(stack* head) {
+	return head->end->data;
+}
 
-	return head->data;
+int isEmptyStack(stack* head) {
+	return head->end == NULL ? 1 : 0;
 }
 
 void freeStack(stack* head) {
-	while (head != NULL) {
+	while (head->end != NULL) {
 		pop(head);
 	}
 }

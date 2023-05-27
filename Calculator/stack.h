@@ -1,19 +1,26 @@
 #ifndef __STACK_H__ 
 #define __STACK_H__
 
-typedef struct stack {
+typedef struct stackNode {
 	int data;
-	struct stack* next;
+	struct stackNode* next;
+}sNode;
+
+typedef struct stack {
+	sNode* end;
 }stack;
 
-stack* newStack();
+stack newStack();
 
-void push(stack* head, int data);
+sNode* get_sNode();
+
+void push(int data, stack* head);
 
 void pop(stack* head);
 
 int top(stack* head);
 
-void freeStack(stack* head);
+int isEmptyStack(stack* head);
 
+void freeStack(stack* head);
 #endif

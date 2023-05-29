@@ -2,7 +2,7 @@
 #define __STACK_H__
 
 typedef struct stackNode {
-	int data;
+	long long data;
 	struct stackNode* next;
 }sNode;
 
@@ -14,9 +14,9 @@ stack newStack();
 
 sNode* get_sNode();
 
-void push(int data, stack* head);
+void push(long long data, stack* head);
 
-void pop(stack* head);
+long long pop(stack* head);
 
 int top(stack* head);
 

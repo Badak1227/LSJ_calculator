@@ -68,7 +68,7 @@ int isEmptyQueue(queue* head) {
 }
 
 void freeQueue(queue* head) {
-	while (head->rear != NULL) {
+	while (!isEmptyQueue(head)) {
 		deQueue(head);
 	}
 }

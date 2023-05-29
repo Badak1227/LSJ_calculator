@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 typedef struct stackNode {
-	int data;
+	long long data;
 	struct stackNode* next;
 }sNode;
 
@@ -27,20 +27,23 @@ sNode* get_sNode() {
 	return tmp;
 }
 
-void push(int data, stack* head) {
+void push(long long data, stack* head) {
 	sNode* tmp = get_sNode();
 	tmp->data = data;
 	tmp->next = head->end;
 	head->end = tmp;
 }
 
-void pop(stack* head) {
+long long pop(stack* head) {
 	sNode* tmp = head->end;
+	long long res = tmp->data;
 	head->end = head->end->next;
 	free(tmp);
+
+	return res;
 }
 
-int top(stack* head) {
+long long top(stack* head) {
 	return head->end->data;
 }
 
@@ -49,7 +52,7 @@ int isEmptyStack(stack* head) {
 }
 
 void freeStack(stack* head) {
-	while (head->end != NULL) {
+	while (!isEmptyStack(head)) {
 		pop(head);
 	}
 }

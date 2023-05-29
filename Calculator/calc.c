@@ -3,7 +3,37 @@
 #include "queue.h"
 #include "stack.h"
 
-long long calc(queue exp) {
+void caculate(stack* operand, stack* operator) {
+	while (!isEmptyStack(operator)) {
+
+		char sign = pop(operator);
+		if (sign == '(') break;
+
+		long long num2 = pop(operand), num1 = pop(operand);
+
+		if (sign == '+') {
+			push(num1 + num2, operand);
+		}
+		else if (sign == '-') {
+			push(num1 - num2, operand);
+		}
+		else if (sign == '*') {
+			push(num1 * num2, operand);
+		}
+		else if (sign == '/') {
+			push(num1 / num2, operand);
+		}
+		else if (sign == '%') {
+			push(num1 % num2, operand);
+		}
+		else if (sign == '^') {
+			push(num1 ^ num2, operand);
+		}
+	}
+	
+}
+
+void calc(queue* exp) {
 	stack operand = newStack();
 	stack operator = newStack();
 
@@ -15,46 +45,160 @@ long long calc(queue exp) {
 
 	int plusCheck = 0; // +연산자가 연속으로 오는지 체크
 
-	while (!isEmptyQueue(&exp)) {
-		char cur = deQueue(&exp);
+	int overflowCheck = 0;
+
+	while (!isEmptyQueue(exp)) {
+		char cur = deQueue(exp);
 
 		if ('0' <= cur && cur <= '9') {
 			num = num * 10 + (cur - '0');
+
+			preOperatorCheck = 0;
+			minusCheck = 0;
+			plusCheck = 0;
 		}
 		else {
-			if (preOperatorCheck == 1) {
-				if (cur == '-' && minusCheck == 0) {
+			if (cur == '-') {
+				if (preOperatorCheck == 1) {
+					if (minusCheck == 1) {
+						printf("ERROR: Invalid Experiment");
+						break;
+					}
+
 					push(-1, &operand);
 					push('*', &operator);
 					minusCheck = 1;
-					plusCheck = 0;
 				}
-				else if (cur == '+' && plusCheck == 0) {
+				else {
+					push(num, &operand);
+					num = 0;
+
+					if (!isEmptyStack(&operator)) {
+						char prev = top(&operator);
+						if (prev == '*' || prev == '/' || prev == '%' || prev == '^') {
+							caculate(&operand, &operator);
+						}
+					}
+
+					
+					push(cur, &operator);
+
+					preOperatorCheck = 1;
+					minusCheck = 0;
+				}
+
+				plusCheck = 0;
+			}
+			else if (cur == '+') {
+
+				if (preOperatorCheck == 1) {
+
+					if (plusCheck == 1) {
+						printf("ERROR: Invalid Experiment");
+						break;
+					}
+
 					push(1, &operand);
 					push('*', &operator);
 					plusCheck = 1;
-					minusCheck = 0;
 				}
 				else {
-					printf("ERROR: Invalid Experimen");
-					freeQueue(&exp);
-					freeStack(&operand);
-					freeStack(&operator);
+					push(num, &operand);
+					num = 0;
+
+					if (!isEmptyStack(&operator)){
+						char prev = top(&operator);
+						if (prev == '*' || prev == '/' || prev == '%' || prev == '^') {
+							caculate(&operand, &operator);
+						}
+					}
+
+					
+					push(cur, &operator);
+
+					preOperatorCheck = 1;
+					plusCheck = 0;
 				}
 
-				preOperatorCheck = 0;
+				minusCheck = 0;
 			}
-			else {
-				if (cur == '(') {
-					push('(', &operator);
-					plusCheck = 0;
-					minusCheck = 0;
+			else if (cur == '*' || cur == '/' || cur == '%') {
+
+				if (preOperatorCheck == 1) {
+					printf("ERROR: Invalid Experiment", top(&operand), cur);
+					break;
 				}
+				
+				if (!isEmptyStack(&operator)) {
+					char prev = top(&operator);
+					if (prev == '^') {
+						caculate(&operand, &operator);
+					}
+				}
+
+				push(num, &operand);
+				num = 0;
+				push(cur, &operator);
+				
+				preOperatorCheck = 1;
+				plusCheck = 0;
+				minusCheck = 0;
+			}
+			else if (cur == '^') {
+				if (preOperatorCheck == 1) {
+					printf("ERROR: Invalid Experiment", top(&operand), cur);
+					break;
+				}
+
+				push(num, &operand);
+				num = 0;
+				push(cur, &operator);
+
+				preOperatorCheck = 1;
+				plusCheck = 0;
+				minusCheck = 0;
+			}
+			else if (cur == '(') {
+				if (preOperatorCheck == 0) {
+					printf("ERROR: Invalid Experiment", top(&operator), cur);
+					break;
+				}
+				
+				push(num, &operand);
+				num = 0;
+				push('(', &operator);
+
+				plusCheck = 0;
+				minusCheck = 0;
+			}
+			else if (cur == ')') {
+				if (preOperatorCheck == 1) {
+					printf("ERROR: Invalid Experiment", top(&operator), cur);
+					break;
+				}
+
+				push(num, &operand);
+				num = 0;
+				caculate(&operand, &operator);
+
+				plusCheck = 0;
+				minusCheck = 0;
 			}
 		}
 	}
 
-	return 0;
+	push(num, &operand);
+	caculate(&operand, &operator);
+
+	if (overflowCheck) {
+		printf("ERROR: OverFlow Occured");
+	}
+	else {
+		printf("%d\n", top(&operand));
+	}
+
+	freeStack(&operand);
+	freeStack(&operator);
 }
 
 //newQueue()와 newStack()으로 생성된 스택/큐는 지역변수
@@ -72,16 +216,15 @@ int input() {
 			cur = getc(stdin);
 			continue;
 		}
-
 		//괄호, 숫자, 연산자 외 입력 검사
-		if ('0' <= cur && cur <= '9' || cur <= '(' || cur == ')' || cur == '+' || cur == '-' || cur == '*' || cur == '/' || cur == '%' || cur == '^') {
+		if (('0' <= cur && cur <= '9') || cur == '(' || cur == ')' || cur == '+' || cur == '-' || cur == '*' || cur == '/' || cur == '%' || cur == '^') {
 
 			//괄호쌍 검사
 			if (cur == '(') {
 				push('(', &open);
 			}
 			else if (cur == ')') {
-				if (isEmptyStack(&open) == NULL) {
+				if (isEmptyStack(&open)) {
 					printf("ERROR: Invalid Pair Of Parentheses\n");
 
 					while (getc(stdin) != '\n');
@@ -107,7 +250,7 @@ int input() {
 		}
 	}
 	
-	if (isEmptyStack(&open) != NULL) {
+	if (!isEmptyStack(&open)) {
 		printf("ERROR: Not An Operand or Operator\n");
 		
 		freeStack(&open);
@@ -115,7 +258,7 @@ int input() {
 		return 1;
 	}
 
-	calc(exp);
+	calc(&exp);
 	freeQueue(&exp);
 	return 1;
 }

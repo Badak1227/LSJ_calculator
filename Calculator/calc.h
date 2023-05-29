@@ -3,7 +3,7 @@
 #include "queue.h"
 #include "stack.h"
 
-long long calc(queue exp);
+void calc(queue* exp);
 
 int input();
 

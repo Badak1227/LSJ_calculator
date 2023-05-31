@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 typedef struct stackNode {
-	long long data;
+	double data;
 	struct stackNode* next;
 }sNode;
 
@@ -27,23 +27,23 @@ sNode* get_sNode() {
 	return tmp;
 }
 
-void push(long long data, stack* head) {
+void push(double data, stack* head) {
 	sNode* tmp = get_sNode();
 	tmp->data = data;
 	tmp->next = head->end;
 	head->end = tmp;
 }
 
-long long pop(stack* head) {
+double pop(stack* head) {
 	sNode* tmp = head->end;
-	long long res = tmp->data;
+	double res = tmp->data;
 	head->end = head->end->next;
 	free(tmp);
 
 	return res;
 }
 
-long long top(stack* head) {
+double top(stack* head) {
 	return head->end->data;
 }
 

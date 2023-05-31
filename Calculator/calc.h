@@ -3,8 +3,6 @@
 #include "queue.h"
 #include "stack.h"
 
-void calc(queue* exp);
-
 int input();
 
 #endif

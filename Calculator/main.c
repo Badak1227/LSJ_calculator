@@ -2,10 +2,11 @@
 #include "calc.h"
 
 int main() {
+	printf(">> ");
+	while (input()) {
+		printf("\n>> ");
+	};
 	
-	int a = -+1;
-
-	printf("%d", a);
-
+	printf("Á¾·áµÊ");
 	return 0;
 }

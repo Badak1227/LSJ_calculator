@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <math.h>
 #include "queue.h"
@@ -24,12 +23,14 @@ int calculate(stack* operand, stack* operator, int n) {
 		else if (sign == '/') {
 			if (num2 == 0) {
 				error = 2;
+				printf("ERROR: Div By 0\n");
 				break;
 			}
 			push(num1 / num2, operand);
 		}
 		else if (sign == '%') {
 			if (num2 == 0) {
+				printf("ERROR: Mod By 0\n");
 				error = 2;
 				break;
 			}
@@ -57,7 +58,7 @@ void calc(queue* exp) {
 
 	stack operator = newStack(); // 연산자 스택
 
-	int num = 0;
+	double num = 0;
 
 	int preNumCheck = 0; // 이전에 숫자가 왔는지 체크
 
@@ -71,8 +72,66 @@ void calc(queue* exp) {
 
 	while (!isEmptyQueue(exp) && errorCode == 0) {
 		char cur = deQueue(exp);
+		if (cur == '-') {
+			if (preNumCheck == 0) {
+				if (minusCheck == 1) {
+					errorCode = 1;
+					break;
+				}
 
-		if ('0' <= cur && cur <= '9') {
+				push(-1, &operand);
+				push('*', &operator);
+			}
+			else {
+				push(num, &operand);
+				num = 0;
+
+				if (!isEmptyStack(&operator)) {
+					char prev = top(&operator);
+					if (prev == '-' || prev == '+' || prev == '*' || prev == '/' || prev == '%' || prev == '^') {
+						errorCode = calculate(&operand, &operator, 1);
+					}
+				}
+
+				push(cur, &operator);
+				preNumCheck = 0;
+				closeCheck = 0;
+			}
+
+			minusCheck = 1;
+			plusCheck = 0;
+		}
+		else if (cur == '+') {
+			if (preNumCheck == 0) {
+				if (plusCheck == 1) {
+					errorCode = 1;
+					break;
+				}
+
+				push(1, &operand);
+				push('*', &operator);
+			}
+			else {
+				push(num, &operand);
+				num = 0;
+
+				if (!isEmptyStack(&operator)) {
+					char prev = top(&operator);
+					if (prev == '-' || prev == '+' || prev == '*' || prev == '/' || prev == '%' || prev == '^') {
+						errorCode = calculate(&operand, &operator, 1);
+					}
+				}
+
+
+				push(cur, &operator);
+				preNumCheck = 0;
+				closeCheck = 0;
+			}
+
+			plusCheck = 1;
+			minusCheck = 0;
+		}
+		else if ('0' <= cur && cur <= '9') {
 			if (closeCheck == 1) {
 				errorCode = 1;
 				break;
@@ -86,68 +145,7 @@ void calc(queue* exp) {
 			closeCheck = 0;
 		}
 		else {
-			if (cur == '-') {
-				if (preNumCheck == 0) {
-					if (minusCheck == 1) {
-						errorCode = 1;
-						break;
-					}
-
-					push(-1, &operand);
-					push('*', &operator);
-					minusCheck = 1;
-				}
-				else {
-					push(num, &operand);
-					num = 0;
-
-					if (!isEmptyStack(&operator)) {
-						char prev = top(&operator);
-						if (prev == '-' || prev == '+' || prev == '*' || prev == '/' || prev == '%' || prev == '^') {
-							errorCode = calculate(&operand, &operator, 1);
-						}
-					}
-
-					push(cur, &operator);
-					preNumCheck = 0;
-					minusCheck = 1;
-					closeCheck = 0;
-				}
-
-				plusCheck = 0;
-			}
-			else if (cur == '+') {
-				if (preNumCheck == 0) {
-					if (plusCheck == 1) {
-						errorCode = 1;
-						break;
-					}
-
-					push(1, &operand);
-					push('*', &operator);
-					plusCheck = 1;
-				}
-				else {
-					push(num, &operand);
-					num = 0;
-
-					if (!isEmptyStack(&operator)){
-						char prev = top(&operator);
-						if (prev == '-' || prev == '+' || prev == '*' || prev == '/' || prev == '%' || prev == '^') {
-							errorCode = calculate(&operand, &operator, 1);
-						}
-					}
-
-					
-					push(cur, &operator);
-					preNumCheck = 0;
-					plusCheck = 1;
-					closeCheck = 0;
-				}
-
-				minusCheck = 0;
-			}
-			else if (cur == '*' || cur == '/' || cur == '%') {
+			if (cur == '*' || cur == '/' || cur == '%') {
 				if (preNumCheck == 0) {
 					errorCode = 1;
 					break;
@@ -161,12 +159,9 @@ void calc(queue* exp) {
 						errorCode = calculate(&operand, &operator, 1);
 					}
 				}
-				
 				push(cur, &operator);
 				
 				preNumCheck = 0;
-				plusCheck = 0;
-				minusCheck = 0;
 				closeCheck = 0;
 			}
 			else if (cur == '^') {
@@ -181,8 +176,6 @@ void calc(queue* exp) {
 
 
 				preNumCheck = 0;
-				plusCheck = 0;
-				minusCheck = 0;
 				closeCheck = 0;
 			}
 			else if (cur == '(') {
@@ -193,8 +186,6 @@ void calc(queue* exp) {
 				
 				push('(', &operator);
 
-				plusCheck = 0;
-				minusCheck = 0;
 			}
 			else if (cur == ')') {
 				if (preNumCheck == 0) {
@@ -208,10 +199,11 @@ void calc(queue* exp) {
 
 				num = pop(&operand); // 마지막에 숫자를 스택에 넣어주는 형태를 만들어 주기 위함
 
-				plusCheck = 0;
-				minusCheck = 0;
 				closeCheck = 1;
 			}
+
+			plusCheck = 0;
+			minusCheck = 0;
 		}
 	}
 
@@ -230,17 +222,15 @@ void calc(queue* exp) {
 		errorCode = calculate(&operand, &operator, 0);
 
 		//계산 과정 오류 체크
-		if (errorCode == 2) {
-			printf("ERROR: Div Or Mod With 0\n");
-
-		}
-		else {
+		if (errorCode == 0) {
 			double res = top(&operand);
+
+			//소수점 첫째 자리까지 표현, 첫째자리가 0일 경우 소수점 표현 생략
 			if (fmod(res * 10, 10) == 0) {
-				printf("%.0lf\n", res);
+				printf("result: %.0lf\n", res);
 			}
 			else {
-				printf("%.1lf\n", res);
+				printf("result: %.1lf\n", res);
 			}
 		}
 	}
@@ -309,4 +299,3 @@ int input() {
 	freeQueue(&exp);
 	return 1;
 }
-

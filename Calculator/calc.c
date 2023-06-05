@@ -62,10 +62,6 @@ void calc(queue* exp) {
 
 	int preNumCheck = 0; // 이전에 숫자가 왔는지 체크
 
-	int minusCheck = 0; // -연산자가 연속으로 오는지 체크
-
-	int plusCheck = 0; // +연산자가 연속으로 오는지 체크
-
 	int closeCheck = 0; // ')'로 끝났는지 체크
 
 	int errorCode = 0; // 0: 에러 없음, 1: 잘못된 수식 에러, 2: / 0 or % 0 에러
@@ -74,9 +70,12 @@ void calc(queue* exp) {
 		char cur = deQueue(exp);
 		if (cur == '-') {
 			if (preNumCheck == 0) {
-				if (minusCheck == 1) {
-					errorCode = 1;
-					break;
+
+				if (!isEmptyStack(&operator)) {
+					if (top(&operator) != '(') {
+						errorCode = 1;
+						break;
+					}
 				}
 
 				push(-1, &operand);
@@ -97,15 +96,14 @@ void calc(queue* exp) {
 				preNumCheck = 0;
 				closeCheck = 0;
 			}
-
-			minusCheck = 1;
-			plusCheck = 0;
 		}
 		else if (cur == '+') {
 			if (preNumCheck == 0) {
-				if (plusCheck == 1) {
-					errorCode = 1;
-					break;
+				if (!isEmptyStack(&operator)) {
+					if (top(&operator) != '(') {
+						errorCode = 1;
+						break;
+					}
 				}
 
 				push(1, &operand);
@@ -127,9 +125,6 @@ void calc(queue* exp) {
 				preNumCheck = 0;
 				closeCheck = 0;
 			}
-
-			plusCheck = 1;
-			minusCheck = 0;
 		}
 		else if ('0' <= cur && cur <= '9') {
 			if (closeCheck == 1) {
@@ -140,8 +135,6 @@ void calc(queue* exp) {
 			num = num * 10 + (cur - '0');
 
 			preNumCheck = 1;
-			minusCheck = 0;
-			plusCheck = 0;
 			closeCheck = 0;
 		}
 		else {
@@ -201,9 +194,6 @@ void calc(queue* exp) {
 
 				closeCheck = 1;
 			}
-
-			plusCheck = 0;
-			minusCheck = 0;
 		}
 	}
 

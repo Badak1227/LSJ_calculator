@@ -13,9 +13,10 @@ typedef struct stack {
 
 stack newStack() {
 	stack* tmp = (stack*)malloc(sizeof(stack));
-	tmp->end = NULL;
-
 	stack res = *tmp;
+	
+	tmp->end = NULL;
+	
 	free(tmp);
 	return res;
 }

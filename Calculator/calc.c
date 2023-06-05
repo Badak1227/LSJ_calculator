@@ -70,7 +70,6 @@ void calc(queue* exp) {
 		char cur = deQueue(exp);
 		if (cur == '-') {
 			if (preNumCheck == 0) {
-
 				if (!isEmptyStack(&operator)) {
 					if (top(&operator) != '(') {
 						errorCode = 1;

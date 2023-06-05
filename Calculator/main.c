@@ -7,6 +7,6 @@ int main() {
 		printf("\n>> ");
 	};
 	
-	printf("Á¾·áµÊ");
+	printf("Exit\n");
 	return 0;
 }

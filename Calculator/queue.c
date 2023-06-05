@@ -14,10 +14,11 @@ typedef struct queue {
 
 queue newQueue() {
 	queue* tmp = (queue*)malloc(sizeof(queue));
+	queue res = *tmp;
+	
 	tmp->front = NULL;
 	tmp->rear = NULL;
-
-	queue res = *tmp;
+	
 	free(tmp);
 	return res;
 }

@@ -13,12 +13,13 @@ typedef struct queue {
 }queue;
 
 queue newQueue() {
+	queue res;
 	queue* tmp = (queue*)malloc(sizeof(queue));
-	queue res = *tmp;
-	
+
 	tmp->front = NULL;
 	tmp->rear = NULL;
-	
+	res = *tmp;
+
 	free(tmp);
 	return res;
 }
@@ -34,7 +35,7 @@ qNode* get_qNode() {
 void enQueue(char data, queue* head) {
 	qNode* tmp = get_qNode();
 	tmp->data = data;
-	
+
 	if (head->front == NULL) {
 		head->front = tmp;
 		head->rear = tmp;

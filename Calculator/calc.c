@@ -215,7 +215,7 @@ void calc(queue* exp) {
 			double res = top(&operand);
 
 			//소수점 첫째 자리까지 표현, 첫째자리가 0일 경우 소수점 표현 생략
-			if (fmod(res * 10, 10) < 1) {
+			if (fmod(res * 10, 10) > -1 && fmod(res * 10, 10) < 1) {
 				printf("result: %.0lf\n", res);
 			}
 			else {
